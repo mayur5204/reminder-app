@@ -35,6 +35,8 @@ if [ -d ".git" ]; then
 else
     echo -e "${YELLOW}Initializing git repository...${NC}"
     git init
+    # Rename the default branch to main
+    git branch -m master main
 fi
 
 # Check if there are any uncommitted changes
@@ -58,9 +60,14 @@ fi
 echo -e "${YELLOW}Pushing to GitHub...${NC}"
 echo -e "${GREEN}Repository URL: $REPO_URL${NC}"
 echo -e "${YELLOW}You'll need to enter your GitHub credentials to push.${NC}"
+echo -e "${YELLOW}IMPORTANT: Make sure you've created the repository on GitHub first!${NC}"
+
+# Get current branch name
+CURRENT_BRANCH=$(git branch --show-current)
+echo -e "${YELLOW}Current branch is: $CURRENT_BRANCH${NC}"
 
 # Push to GitHub
-git push -u origin main || git push -u origin master
+git push -u origin $CURRENT_BRANCH
 
 echo -e "${GREEN}Repository pushed to GitHub successfully!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
