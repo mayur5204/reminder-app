@@ -1,0 +1,85 @@
+name: reminder-app
+title: Reminder App
+version: '1.0'
+summary: A simple reminder application with system tray integration
+description: |
+  Reminder App is a desktop application to manage your daily reminders 
+  with notifications and system tray integration. Features include:
+  
+  * Create and manage reminders with customizable schedules
+  * System tray integration for easy access
+  * Desktop notifications when reminders are due
+  * Persistent storage of your reminders
+
+grade: stable
+confinement: strict
+base: core22
+
+apps:
+  reminder-app:
+    command: usr/bin/reminder
+    extensions: [gnome]
+    plugs:
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - home
+      - network
+      - gsettings
+      - audio-playback
+      - unity7
+    slots:
+      - dbus-reminder
+    daemon: simple
+
+slots:
+  dbus-reminder:
+    interface: dbus
+    bus: session
+    name: com.ubuntu.reminder
+
+parts:
+  reminder:
+    plugin: nil
+    source: .
+    override-build: |
+      craftctl default
+      # Build the application
+      g++ -o reminder \
+        src/main.cpp \
+        src/reminder_app.cpp \
+        src/reminder_popup_window.cpp \
+        `pkg-config --cflags --libs gtkmm-3.0` \
+        `pkg-config --cflags --libs libnotify` \
+        `pkg-config --cflags --libs sqlite3` \
+        `pkg-config --cflags --libs ayatana-appindicator3-1`
+      
+      # Create necessary directories
+      mkdir -p $CRAFT_PART_INSTALL/usr/bin
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/icons/hicolor/128x128/apps
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/pixmaps
+      mkdir -p $CRAFT_PART_INSTALL/usr/lib/systemd/user
+      
+      # Install files
+      cp reminder $CRAFT_PART_INSTALL/usr/bin/
+      cp data/reminder.desktop $CRAFT_PART_INSTALL/usr/share/applications/
+      cp data/reminder.png $CRAFT_PART_INSTALL/usr/share/icons/hicolor/128x128/apps/
+      cp data/reminder.png $CRAFT_PART_INSTALL/usr/share/pixmaps/
+      cp data/reminder.service $CRAFT_PART_INSTALL/usr/lib/systemd/user/
+      
+      # Make executable
+      chmod +x $CRAFT_PART_INSTALL/usr/bin/reminder
+    build-packages:
+      - g++
+      - pkg-config
+      - libgtkmm-3.0-dev
+      - libsqlite3-dev
+      - libnotify-dev
+      - libayatana-appindicator3-dev
+    stage-packages:
+      - libgtkmm-3.0-1v5
+      - libnotify4
+      - libsqlite3-0
+      - libayatana-appindicator3-1

@@ -1,0 +1,14 @@
+[Unit]
+Description=Reminder Application Service
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/reminder --minimize
+ExecStop=/usr/bin/pkill -f reminder
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

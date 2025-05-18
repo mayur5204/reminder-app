@@ -1,0 +1,27 @@
+name: Publish to Snap Store
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Snapcraft
+      run: |
+        sudo snap install snapcraft --classic
+        
+    - name: Build Snap
+      run: |
+        snapcraft --use-lxd
+        
+    - name: Publish to Snap Store
+      uses: snapcore/action-publish@v1
+      with:
+        store_login: ${{ secrets.SNAP_STORE_LOGIN }}
+        snap: ./*.snap
+        release: stable

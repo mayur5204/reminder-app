@@ -1,0 +1,28 @@
+name: Build and Push Snap
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Snapcraft
+      run: |
+        sudo snap install snapcraft --classic
+        
+    - name: Build Snap
+      run: |
+        snapcraft --use-lxd
+        
+    - name: Upload Snap Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: reminder-app-snap
+        path: ./*.snap

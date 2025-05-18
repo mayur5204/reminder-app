@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+*.o
+reminder
+*.snap
+
+# Debian package artifacts
+*.deb
+debian/reminder.debhelper.log
+debian/reminder.substvars
+debian/files
+debian/reminder/
+
+# Editor files
+.vscode/
+.idea/
+
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Log files
+*.log
+
+# System files
+.DS_Store
+Thumbs.db

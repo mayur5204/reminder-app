@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Reminder
+Comment=Simple reminder application
+Exec=reminder
+Icon=${SNAP}/usr/share/pixmaps/reminder.png
+Terminal=false
+Categories=Utility;GTK;
+Keywords=reminder;task;notification;
