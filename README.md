@@ -227,3 +227,17 @@ sudo apt remove reminder
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
+
+## Install from Snap Store
+
+The Reminder App is available on the Snap Store. To install:
+
+```bash
+sudo snap install reminder-app
+```
+
+After installation, you can launch the app from your application menu or by running:
+
+```bash
+reminder-app
+```

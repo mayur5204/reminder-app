@@ -35,7 +35,7 @@ apps:
     slots:
       - dbus-reminder
     daemon: simple
-    autostart: reminder.desktop
+    autostart: reminder.desktop # Changed from 'reminder'
 
 slots:
   dbus-reminder:
@@ -49,6 +49,29 @@ parts:
     source: .
     override-build: |
       set -xe
+      # Set up pkg-config path to include system locations
+      export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+      
+      # Build the application with direct paths if pkg-config fails
+      echo "Trying to build with pkg-config..."
+      g++ -o reminder \
+        src/main.cpp \
+        src/reminder_app.cpp \
+        src/reminder_popup_window.cpp \
+        `pkg-config --cflags --libs gtkmm-3.0` \
+        `pkg-config --cflags --libs libnotify` \
+        `pkg-config --cflags --libs sqlite3` \
+        `pkg-config --cflags --libs ayatana-appindicator3-1` || \
+      echo "Falling back to direct include/lib paths..." && \
+      g++ -o reminder \
+        src/main.cpp \
+        src/reminder_app.cpp \
+        src/reminder_popup_window.cpp \
+        `pkg-config --cflags --libs gtkmm-3.0` \
+        `pkg-config --cflags --libs libnotify` \
+        `pkg-config --cflags --libs sqlite3` \
+        -I/usr/include -L/usr/lib/x86_64-linux-gnu -layatana-appindicator3
+      
       # Create necessary directories
       mkdir -p $CRAFT_PART_INSTALL/usr/bin
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
@@ -60,6 +83,16 @@ parts:
       install -Dm644 data/reminder.desktop $CRAFT_PART_INSTALL/usr/share/applications/
       install -Dm644 data/reminder.png $CRAFT_PART_INSTALL/usr/share/icons/hicolor/128x128/apps/
       install -Dm644 data/reminder.png $CRAFT_PART_INSTALL/usr/share/pixmaps/
+      
+      # Note: We don't need to copy the systemd service file for snap packaging
+      # as the snap has its own service management via daemon: simple
+    build-packages:
+      - g++
+      - pkg-config
+      - libgtkmm-3.0-dev
+      - libsqlite3-dev
+      - libnotify-dev
+      - libayatana-appindicator3-dev
     stage-packages:
       - libgtkmm-3.0-1v5
       - libnotify4
