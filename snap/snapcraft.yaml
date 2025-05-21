@@ -47,8 +47,36 @@ parts:
   reminder:
     plugin: dump
     source: .
+    build-packages:
+      - g++
+      - pkg-config
+      - libgtkmm-3.0-dev
+      - libnotify-dev
+      - libsqlite3-dev
+      - libayatana-appindicator3-dev
     override-build: |
       set -xe
+      # Create build directory
+      mkdir -p build
+      cd build
+      
+      # Get compiler flags
+      CXX_FLAGS=$(pkg-config --cflags gtkmm-3.0 libnotify ayatana-appindicator3-0.1)
+      LD_FLAGS=$(pkg-config --libs gtkmm-3.0 libnotify ayatana-appindicator3-0.1)
+      
+      # Compile the source files
+      echo "Compiling source files..."
+      g++ -c ../src/main.cpp $CXX_FLAGS -I/usr/include/sqlite3
+      g++ -c ../src/reminder_app.cpp $CXX_FLAGS -I/usr/include/sqlite3
+      g++ -c ../src/reminder_popup_window.cpp $CXX_FLAGS -I/usr/include/sqlite3
+      
+      # Link the objects
+      echo "Linking objects..."
+      g++ main.o reminder_app.o reminder_popup_window.o -o reminder $LD_FLAGS -lsqlite3 -lpthread
+      
+      # Return to root directory
+      cd ..
+      
       # Create necessary directories
       mkdir -p $CRAFT_PART_INSTALL/usr/bin
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications
@@ -56,7 +84,7 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/usr/share/pixmaps
       
       # Install files
-      install -Dm755 reminder $CRAFT_PART_INSTALL/usr/bin/
+      install -Dm755 build/reminder $CRAFT_PART_INSTALL/usr/bin/
       install -Dm644 data/reminder.desktop $CRAFT_PART_INSTALL/usr/share/applications/
       install -Dm644 data/reminder.png $CRAFT_PART_INSTALL/usr/share/icons/hicolor/128x128/apps/
       install -Dm644 data/reminder.png $CRAFT_PART_INSTALL/usr/share/pixmaps/
