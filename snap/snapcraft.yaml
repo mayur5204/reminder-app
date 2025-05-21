@@ -49,6 +49,7 @@ parts:
     source: .
     build-packages:
       - g++
+      - make
       - pkg-config
       - libgtkmm-3.0-dev
       - libnotify-dev
@@ -56,6 +57,7 @@ parts:
       - libayatana-appindicator3-dev
     override-build: |
       set -xe
+      
       # Create build directory
       mkdir -p build
       cd build
